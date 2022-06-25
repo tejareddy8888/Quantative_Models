@@ -11,6 +11,13 @@ def load_data():
     data_df.set_index('Date',drop=True,inplace=True)
     return data_df
 
+def normalize_data(df):
+    """ This function can also be called as feature scaling like normalization, min-max scaling, 
+    also test sklearn.preprocessing import StandardScaler or other preprocessing
+    """
+    df = (df - df.mean()) / df.std()
+    return df
+
 def StationaryCheck(data,columns):
     for column in columns:
         res = adfuller(data.loc[:, [column]])
@@ -29,6 +36,8 @@ def StationaryCheck(data,columns):
 if __name__ == '__main__':
     ## Load the data from the sheet
     data = load_data()
+
+    data = normalize_data(data);
 
     StationaryCheck(data,PHASE_VARIABLES)
 
