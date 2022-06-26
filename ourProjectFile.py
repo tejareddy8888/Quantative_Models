@@ -137,24 +137,38 @@ if __name__ == '__main__':
                                                     verbose=1)
 
     # Training; Hint: play with num_hidden = 1 or 2, and kernel_size
-    model = Autoencoder(num_timesteps=timesteps, num_inputs=len(input_columns), num_hidden=2, kernel_size=25, pooling=pooling)
+    AC = Autoencoder(num_timesteps=timesteps, num_inputs=len(input_columns), num_hidden=2, kernel_size=25, pooling=pooling)
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(0.01, decay_steps=50, decay_rate=0.97, staircase=True)
-    model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.SGD(learning_rate=lr_schedule), metrics=[tf.metrics.MeanSquaredError(), ])
-    model.run_eagerly = True
+    AC.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.SGD(learning_rate=lr_schedule), metrics=[tf.metrics.MeanSquaredError(), ])
+    AC.run_eagerly = True
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=50, mode='min')
-    history = model.fit(train_data, validation_data=val_data, epochs=500, callbacks=[early_stopping, checkpoint_callback])
-    model.summary()
+    AC_history = model.fit(train_data, validation_data=val_data, epochs=500, callbacks=[early_stopping, checkpoint_callback])
+    AC.summary()
 
 
     # Loads the weights
-    model.load_weights(checkpoint_path)
+    AC.load_weights(checkpoint_path)
 
-    
-
+    # Plot loss from Auto Encoder
     fig, axs = plt.subplots()
-    axs.plot(history.history['loss'])
-    axs.plot(history.history['val_loss'])
+    axs.plot(AC_history.history['loss'])
+    axs.plot(AC_history.history['val_loss'])
     axs.legend(['training loss', 'validation loss'])
+    
+    # Train with RNN
+    RNN = tf.keras.Sequential()
+    RNN.add(tf.keras.layers.SimpleRNN(2, return_sequences=False, return_state=False, activation=None, use_bias=False))
+    RNN.add(tf.keras.layers.Dense(1, activation=None, use_bias=False))
+    RNN.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(learning_rate=0.01), metrics=[tf.metrics.MeanSquaredError()])
+    RNN.run_eagerly = False
+    RNN_history = RNN.fit(train_data, epochs=500, validation_data=val_data, callbacks=[early_stopping])
+    
+    # Plot loss from RNN
+    fig, axs = plt.subplots()
+    axs.plot(RNN_history.history['loss'])
+    axs.plot(RNN_history.history['val_loss'])
+    axs.legend(['training loss', 'validation loss'])
+    
     
     # fig, axs = plt.subplots()
     # data.loc[:,['DY',]].plot(ax=axs)
