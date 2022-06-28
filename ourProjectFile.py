@@ -204,9 +204,9 @@ if __name__ == '__main__':
     autoencoded_val_inputs = AC.predict(x_val)
     # dumpy_tensor
 
-    # axs[2].plot(dumpy_tensor)
-    # axs[2].plot(AC_history.history['val_loss'])
-    # axs[2].legend(['training loss', 'validation loss'])
+    axs[2].plot(x_train[:,-1,-1])
+    axs[2].plot(autoencoded_train_inputs[:,-1,-1])
+    axs[2].legend(['training signal', 'autoencoded signal'])
 
     # define sliding window
     lf = 1      # look forward
