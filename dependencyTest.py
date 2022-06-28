@@ -33,19 +33,4 @@ def causationCheck(data, target, phase):
 
 
 if __name__ == '__main__':
-    # Load the data from the sheet
-    data = load_data()
 
-    response = StationaryCheck(data, PHASE_VARIABLES)
-
-    for column, p_values in response:
-        if p_values > 0.05:
-            ndiffs = pm.arima.ndiffs(data[column], alpha=0.05, test='kpss', max_d=4)
-            print(column+' needs '+str(ndiffs)+' order differentiation')
-
-    matrix = correlation_matrix(data, PHASE_VARIABLES)
-
-    for eachPhase in PHASE_VARIABLES:
-        causationCheck(data, TARGET_VARIABLES, eachPhase)
-
-    print(matrix)

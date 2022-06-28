@@ -1,9 +1,18 @@
 from statsmodels.tsa.stattools import adfuller
+
 import pandas as pd
+
+import pmdarima as pm
+
+from statsmodels.tsa.stattools import grangercausalitytests
 
 PHASE_VARIABLES = ['Rho', 'VOL', 'MOV ', 'CF', 'UN', 'GDP', 'M2', 'CPI', 'DIL']
 
 FORECASTING_VARIABLES = ['_MKT', 'MG', 'RV']
+
+PHASE_VARIABLES = ['VOL', 'M2', '_OIL', 'CPI', 'Rho', '_MKT']
+
+TARGET_VARIABLES = '_MKT'
 
 
 def load_data():
@@ -45,13 +54,29 @@ def StationaryCheck(data, columns):
         print('\n')
     return zip(columns, p_values)
 
+def correlation_matrix(data, variables):
+    matrix = pd.DataFrame({x: data[x] for x in variables})
+    return matrix.corr()
+
+
+def causationCheck(data, target, phase):
+    print("\n Causation results of "+phase+" variable granger causing "+target)
+    return grangercausalitytests(data.loc[:, [target, phase]], maxlag=7)
 
 if __name__ == '__main__':
     # Load the data from the sheet
     data = load_data()
 
-    data = normalize_data(data)
+    response = StationaryCheck(data, PHASE_VARIABLES)
 
-    StationaryCheck(data, PHASE_VARIABLES)
+    for column, p_values in response:
+        if p_values > 0.05:
+            ndiffs = pm.arima.ndiffs(data[column], alpha=0.05, test='adf', max_d=4)
+            print(column+' needs '+str(ndiffs)+' order differentiation')
 
-    StationaryCheck(data, FORECASTING_VARIABLES)
+    matrix = correlation_matrix(data, PHASE_VARIABLES)
+
+    for eachPhase in PHASE_VARIABLES:
+        causationCheck(data, TARGET_VARIABLES, eachPhase)
+
+    print(matrix)
