@@ -140,7 +140,8 @@ if __name__ == '__main__':
 
     # creating a sliding windowed data
     # Few constants like input window of number of time steps width and prediction timesteps width
-    window = WindowGenerator(input_width=timesteps, label_width=1, shift=1,
+    # Width = timesteps +1 because need to include the target at T
+    window = WindowGenerator(input_width=(timesteps+1), label_width=1, shift=1,
                              input_columns=input_columns, label_columns=target_columns, all_columns=data.columns)
 
     # Below is to check the window generation if needed.
@@ -166,14 +167,13 @@ if __name__ == '__main__':
                                                              save_weights_only=True,
                                                              verbose=1)
 
-    x_train = tf.concat([x for x, y in train_data], axis=0)
-    y_train = tf.concat([y for x, y in train_data], axis=0)
+    train = tf.concat([x for x, _ in train_data], axis=0)
 
-    x_val = tf.concat([x for x, y in val_data], axis=0)
-    y_val = tf.concat([y for x, y in val_data], axis=0)
+    val = tf.concat([x for x, _ in val_data], axis=0)
 
     # # Training; Hint: play with num_hidden = 1 or 2, and kernel_size
-    AC = Autoencoder(num_timesteps=timesteps, num_inputs=len(
+    # time steps +1 because of the same reason as when defining window
+    AC = Autoencoder(num_timesteps=(timesteps+1), num_inputs=len(
         input_columns), num_hidden=2, kernel_size=25, pooling=pooling)
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         0.01, decay_steps=50, decay_rate=0.97, staircase=True)
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     AC.run_eagerly = True
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='loss', patience=50, mode='min')
-    AC_history = AC.fit(x=x_train, y=x_train, validation_data=(x_val, x_val), epochs=100, callbacks=[
+    AC_history = AC.fit(x=train, y=train, validation_data=(val, val), epochs=100, callbacks=[
                         early_stopping, checkpoint_callback])
     AC.summary()
 
@@ -200,13 +200,20 @@ if __name__ == '__main__':
 
     # below is to compare the autoencoded_train_data against actual train data
 
-    autoencoded_train_inputs = AC.predict(x_train)
-    autoencoded_val_inputs = AC.predict(x_val)
+    autoencoded_train_inputs = AC.predict(train)
+    autoencoded_val_inputs = AC.predict(val)
     # dumpy_tensor
 
-    axs[2].plot(x_val[:,-1,-1])
+    axs[2].plot(val[:,-1,-1])
     axs[2].plot(autoencoded_val_inputs[:,-1,-1])
     axs[2].legend(['training signal', 'autoencoded signal'])
+    
+    # Separate x_train, x_val and y_train from autoecoded data
+    x_train= tf.convert_to_tensor([x[:5] for x in autoencoded_train_inputs])
+    x_val= tf.convert_to_tensor([x[:5] for x in autoencoded_val_inputs])
+    y_train = tf.convert_to_tensor([y[5][2] for y in autoencoded_train_inputs])
+    # y_val is run throught auto encoder
+    y_val = tf.convert_to_tensor([[[y[5][2]]] for y in val])
 
     # define sliding window
     lf = 1      # look forward
@@ -236,18 +243,19 @@ if __name__ == '__main__':
         early_stopping = tf.keras.callbacks.EarlyStopping(
             monitor='loss', patience=100, mode='min')
         model_history = model.fit(
-            x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=750, batch_size=150, callbacks=[early_stopping])
+            x=x_train, y=y_train, validation_data=(x_val, y_val), epochs=750, batch_size=150, callbacks=[early_stopping])
         print(model.summary())
 
     else:
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.SimpleRNN(2, return_sequences=False,
-                                            return_state=False, activation=None, use_bias=False))
+        model.add(tf.keras.layers.LSTM(3, return_sequences=False, return_state=False, activation=None, use_bias=False))
+        model.add(tf.keras.layers.Dense(10, activation=None, use_bias=False))
+        model.add(tf.keras.layers.Dropout(0.1))
         model.add(tf.keras.layers.Dense(1, activation=None, use_bias=False))
-        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(
-            learning_rate=0.01))
+        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(learning_rate=0.001))
         model.run_eagerly = False
-        model_history = model.fit(x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=500, callbacks=[early_stopping])
+        early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=30, mode='min')
+        model_history = model.fit(x=x_train, y=y_train, validation_data=(x_val,y_val), epochs=500, callbacks=[early_stopping])
         print(model.summary())
 
         # Plot loss from RNN
