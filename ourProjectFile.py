@@ -190,7 +190,7 @@ if __name__ == '__main__':
     # AC.load_weights(checkpoint_path)
 
     # Plot loss from Auto Encoder
-    fig, axs = plt.subplots(2, 1)
+    fig, axs = plt.subplots(3, 1)
     axs[0].plot(AC_history.history['loss'])
     axs[0].plot(AC_history.history['val_loss'])
     axs[0].legend(['training loss', 'validation loss'])
@@ -204,8 +204,8 @@ if __name__ == '__main__':
     autoencoded_val_inputs = AC.predict(x_val)
     # dumpy_tensor
 
-    axs[2].plot(x_train[:,-1,-1])
-    axs[2].plot(autoencoded_train_inputs[:,-1,-1])
+    axs[2].plot(x_val[:,-1,-1])
+    axs[2].plot(autoencoded_val_inputs[:,-1,-1])
     axs[2].legend(['training signal', 'autoencoded signal'])
 
     # define sliding window
