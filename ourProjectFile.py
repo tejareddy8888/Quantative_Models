@@ -189,11 +189,11 @@ if __name__ == '__main__':
     # # # Loads the weights
     # AC.load_weights(checkpoint_path)
 
-    # # Plot loss from Auto Encoder
-    # fig, axs = plt.subplots(2, 1)
-    # axs[0].plot(AC_history.history['loss'])
-    # axs[0].plot(AC_history.history['val_loss'])
-    # axs[0].legend(['training loss', 'validation loss'])
+    # Plot loss from Auto Encoder
+    fig, axs = plt.subplots(2, 1)
+    axs[0].plot(AC_history.history['loss'])
+    axs[0].plot(AC_history.history['val_loss'])
+    axs[0].legend(['training loss', 'validation loss'])
 
     # Plot the autoencoded data and actual data
     # flattened_data = tf.stack(tf.convert_to_tensor(train_data.as_numpy_iterator()))
