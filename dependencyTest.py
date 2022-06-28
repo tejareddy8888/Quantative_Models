@@ -1,5 +1,7 @@
+from difflib import ndiff
 from re import M
 import pandas as pd
+import pmdarima as pm
 
 from statsmodels.tsa.stattools import grangercausalitytests
 
@@ -7,7 +9,7 @@ from statsmodels.tsa.stattools import grangercausalitytests
 from stationaryCheck import StationaryCheck
 
 
-PHASE_VARIABLES = ['VOL', 'M2', '_OIL', 'CPI', 'Rho']
+PHASE_VARIABLES = ['VOL', 'M2', '_OIL', 'CPI', 'Rho', '_MKT']
 
 TARGET_VARIABLES = '_MKT'
 
@@ -27,14 +29,19 @@ def correlation_matrix(data, variables):
 
 def causationCheck(data, target, phase):
     print("\n Causation results of "+phase+" variable granger causing "+target)
-    return grangercausalitytests(data.loc[:, [target, phase]], maxlag=5)
+    return grangercausalitytests(data.loc[:, [target, phase]], maxlag=7)
 
 
 if __name__ == '__main__':
     # Load the data from the sheet
     data = load_data()
 
-    StationaryCheck(data, PHASE_VARIABLES)
+    response = StationaryCheck(data, PHASE_VARIABLES)
+
+    for column, p_values in response:
+        if p_values > 0.05:
+            ndiffs = pm.arima.ndiffs(data[column], alpha=0.05, test='kpss', max_d=4)
+            print(column+' needs '+str(ndiffs)+' order differentiation')
 
     matrix = correlation_matrix(data, PHASE_VARIABLES)
 

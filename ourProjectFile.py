@@ -92,8 +92,10 @@ class Autoencoder(tf.keras.models.Model):
         self.lb = kernel_size
         self.pooling = pooling
 
+        ## input (5,3)
         encoder_input = tf.keras.Input(
             shape=(num_timesteps, num_inputs), name="input")
+
         x = tf.keras.layers.Conv1D(filters=num_hidden, kernel_size=kernel_size,
                                    activation=None, use_bias=True, padding='causal')(encoder_input)
         x = tf.keras.layers.MaxPooling1D(
@@ -112,8 +114,8 @@ class Autoencoder(tf.keras.models.Model):
 
 
 if __name__ == '__main__':
-    through_cnn = True
-    timesteps = 5
+    through_cnn = False
+    timesteps = 7
     pooling = 1
 
     input_columns = ['Rho', 'CPI', '_MKT']
@@ -129,10 +131,10 @@ if __name__ == '__main__':
         lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1
     )
     data['M2_phase'] = data.apply(
-        lambda x: 'low' if x['M2'] < (data['M2'].mean()-(0.5*data['M2'].std())) else 'high' if x['M2'] > (data['M2'].mean()+(0.5*data['M2'].std())) else 'medium', axis=1 
+        lambda x: 'low' if x['M2'] < (data['M2'].mean()-(0.5*data['M2'].std())) else 'high' if x['M2'] > (data['M2'].mean()+(0.5*data['M2'].std())) else 'medium', axis=1
     )
     data['_OIL_phase'] = data.apply(
-        lambda x: 'low' if x['_OIL'] < (data['_OIL'].mean()-(0.5*data['_OIL'].std())) else 'high' if x['_OIL'] > (data['_OIL'].mean()+(0.5*data['_OIL'].std())) else 'medium', axis=1 
+        lambda x: 'low' if x['_OIL'] < (data['_OIL'].mean()-(0.5*data['_OIL'].std())) else 'high' if x['_OIL'] > (data['_OIL'].mean()+(0.5*data['_OIL'].std())) else 'medium', axis=1
     )
     print(data.VIX_phase.value_counts())
     # Normalize the entire dataset,
@@ -151,10 +153,6 @@ if __name__ == '__main__':
     # sliding window
 
     td = window.make_dataset(data, True, 250)
-    index = 0
-    for i in td:
-        index += 1
-        print(index)
     train_data = td.take(4)
     val_data = td.skip(4)
 
@@ -176,24 +174,24 @@ if __name__ == '__main__':
     AC = Autoencoder(num_timesteps=timesteps, num_inputs=len(
         input_columns), num_hidden=2, kernel_size=25, pooling=pooling)
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.01, decay_steps=50, decay_rate=0.97, staircase=True)
+        0.1, decay_steps=50, decay_rate=0.97, staircase=True)
     AC.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.SGD(
         learning_rate=lr_schedule), metrics=[tf.metrics.MeanSquaredError(), ])
     AC.run_eagerly = True
     early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor='loss', patience=50, mode='min')
-    AC_history = AC.fit(x=x_train, y=x_train, validation_data=(x_val, x_val), epochs=100, callbacks=[
-                        early_stopping, checkpoint_callback])
-    AC.summary()
+            monitor='val_loss', patience=20, mode='min')
+    # AC_history = AC.fit(x=x_train, y=x_train, validation_data=(x_val, x_val), epochs=100, callbacks=[
+    #                     early_stopping, checkpoint_callback])
+    # AC.summary()
 
     # # # Loads the weights
-    # AC.load_weights(checkpoint_path)
+    AC.load_weights(checkpoint_path)
 
     # Plot loss from Auto Encoder
     fig, axs = plt.subplots(3, 1)
-    axs[0].plot(AC_history.history['loss'])
-    axs[0].plot(AC_history.history['val_loss'])
-    axs[0].legend(['training loss', 'validation loss'])
+    # axs[0].plot(AC_history.history['loss'])
+    # axs[0].plot(AC_history.history['val_loss'])
+    # axs[0].legend(['training loss', 'validation loss'])
 
     # Plot the autoencoded data and actual data
     # flattened_data = tf.stack(tf.convert_to_tensor(train_data.as_numpy_iterator()))
@@ -204,15 +202,15 @@ if __name__ == '__main__':
     autoencoded_val_inputs = AC.predict(x_val)
     # dumpy_tensor
 
-    axs[2].plot(x_val[:,-1,-1])
-    axs[2].plot(autoencoded_val_inputs[:,-1,-1])
+    axs[2].plot(x_val[:, -1, -1])
+    axs[2].plot(autoencoded_val_inputs[:, -1, -1])
     axs[2].legend(['training signal', 'autoencoded signal'])
 
     # define sliding window
     lf = 1      # look forward
     ks = 3      # kernel size
     lw = 1      # label width
-    lb = 5
+    lb = timesteps
     # Train with RNN
     if through_cnn:
         model = tf.keras.Sequential()
@@ -229,26 +227,29 @@ if __name__ == '__main__':
         model.add(tf.keras.layers.Dense(units=1))
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            0.01, decay_steps=150, decay_rate=0.95, staircase=True)
-        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.SGD(
-            learning_rate=lr_schedule), metrics=[tf.metrics.MeanSquaredError()])
+            0.07, decay_steps=150, decay_rate=0.95, staircase=True)
+        model.compile(loss=tf.losses.MeanAbsoluteError(), optimizer=tf.optimizers.SGD(
+            learning_rate=lr_schedule), metrics=[tf.metrics.MeanAbsoluteError()])
         model.run_eagerly = False
         early_stopping = tf.keras.callbacks.EarlyStopping(
-            monitor='loss', patience=100, mode='min')
+            monitor='val_loss', patience=20, mode='min')
         model_history = model.fit(
-            x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=750, batch_size=150, callbacks=[early_stopping])
+            x=autoencoded_train_inputs, y=y_train, validation_data=(x_val, y_val), epochs=300, batch_size=150, callbacks=[early_stopping])
         print(model.summary())
 
     else:
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.SimpleRNN(2, return_sequences=False,
-                                            return_state=False, activation=None, use_bias=False))
-        model.add(tf.keras.layers.Dense(1, activation=None, use_bias=False))
-        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(
-            learning_rate=0.01), metrics=[tf.metrics.MeanSquaredError()])
+        model.add(tf.keras.layers.SimpleRNN(2, return_sequences=False, return_state=False, activation='tanh', use_bias=True))
+        model.add(tf.keras.layers.Dense(1, activation='tanh', use_bias=True))
+
+        # print(model.summary())
+
+        model.compile(loss=tf.losses.MeanAbsoluteError(), optimizer=tf.optimizers.SGD(learning_rate=0.01), metrics=[tf.metrics.MeanAbsoluteError()])
+        early_stopping = tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss', patience=100, mode='min')
         model.run_eagerly = False
-        model_history = model.fit(x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=500, callbacks=[early_stopping])
-        print(model.summary())
+        model_history = model.fit(x=autoencoded_train_inputs, y=y_train, validation_data=(
+            autoencoded_val_inputs, y_val), epochs=750, shuffle=False, callbacks=[early_stopping])
 
         # Plot loss from RNN
     axs[1].plot(model_history.history['loss'])
