@@ -212,7 +212,7 @@ if __name__ == '__main__':
     lf = 1      # look forward
     ks = 3      # kernel size
     lw = 1      # label width
-    lb = 5
+    lb = timesteps
     # Train with RNN
     if through_cnn:
         model = tf.keras.Sequential()
