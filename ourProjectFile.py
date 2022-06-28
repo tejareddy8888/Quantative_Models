@@ -124,6 +124,17 @@ if __name__ == '__main__':
     # data['VIX_phase'] = data.apply(
     #     lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1)
 
+    # Categorize phase variables into thresholds. for M2 and OIL, separate into mean +- 0.5 standard deviation
+    data['VIX_phase'] = data.apply(
+        lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1
+    )
+    data['M2_phase'] = data.apply(
+        lambda x: 'low' if x['M2'] < (data['M2'].mean()-(0.5*data['M2'].std())) else 'high' if x['M2'] > (data['M2'].mean()+(0.5*data['M2'].std())) else 'medium', axis=1 
+    )
+    data['_OIL_phase'] = data.apply(
+        lambda x: 'low' if x['_OIL'] < (data['_OIL'].mean()-(0.5*data['_OIL'].std())) else 'high' if x['_OIL'] > (data['_OIL'].mean()+(0.5*data['_OIL'].std())) else 'medium', axis=1 
+    )
+    print(data.VIX_phase.value_counts())
     # Normalize the entire dataset,
     data = normalize_data(data)
 
