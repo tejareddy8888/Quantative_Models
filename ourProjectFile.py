@@ -112,7 +112,7 @@ class Autoencoder(tf.keras.models.Model):
 
 
 if __name__ == '__main__':
-    through_cnn = False
+    through_cnn = True
     timesteps = 5
     pooling = 1
 
