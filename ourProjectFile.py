@@ -112,7 +112,7 @@ class Autoencoder(tf.keras.models.Model):
 
 
 if __name__ == '__main__':
-    through_cnn = True
+    through_cnn = False
     timesteps = 5
     pooling = 1
 
@@ -121,10 +121,9 @@ if __name__ == '__main__':
 
     # Load the data from the sheet
     data = load_data()
-    data['VIX_phase'] = data.apply(
-        lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1)
+    # data['VIX_phase'] = data.apply(
+    #     lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1)
 
-    print(data.VIX_phase.value_counts())
     # Normalize the entire dataset,
     data = normalize_data(data)
 
@@ -156,7 +155,13 @@ if __name__ == '__main__':
                                                              save_weights_only=True,
                                                              verbose=1)
 
-    # Training; Hint: play with num_hidden = 1 or 2, and kernel_size
+    x_train = tf.concat([x for x, y in train_data], axis=0)
+    y_train = tf.concat([y for x, y in train_data], axis=0)
+
+    x_val = tf.concat([x for x, y in val_data], axis=0)
+    y_val = tf.concat([y for x, y in val_data], axis=0)
+
+    # # Training; Hint: play with num_hidden = 1 or 2, and kernel_size
     AC = Autoencoder(num_timesteps=timesteps, num_inputs=len(
         input_columns), num_hidden=2, kernel_size=25, pooling=pooling)
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
@@ -166,30 +171,26 @@ if __name__ == '__main__':
     AC.run_eagerly = True
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='loss', patience=50, mode='min')
-    AC_history = AC.fit(train_data, validation_data=val_data, epochs=500, callbacks=[
+    AC_history = AC.fit(x=x_train, y=x_train, validation_data=(x_val, x_val), epochs=100, callbacks=[
                         early_stopping, checkpoint_callback])
     AC.summary()
 
-    # # Loads the weights
+    # # # Loads the weights
     # AC.load_weights(checkpoint_path)
 
-    # Plot loss from Auto Encoder
-    fig, axs = plt.subplots(2, 1)
-    axs[0].plot(AC_history.history['loss'])
-    axs[0].plot(AC_history.history['val_loss'])
-    axs[0].legend(['training loss', 'validation loss'])
+    # # Plot loss from Auto Encoder
+    # fig, axs = plt.subplots(2, 1)
+    # axs[0].plot(AC_history.history['loss'])
+    # axs[0].plot(AC_history.history['val_loss'])
+    # axs[0].legend(['training loss', 'validation loss'])
 
     # Plot the autoencoded data and actual data
     # flattened_data = tf.stack(tf.convert_to_tensor(train_data.as_numpy_iterator()))
 
     # below is to compare the autoencoded_train_data against actual train data
 
-    index = 0
-    x_train = np.concatenate([x for x, y in train_data], axis=0)
-    y_train = np.concatenate([y for x, y in train_data], axis=0)
-
-    autoencoded_train_data = AC.predict(train_data)
-    autoencoded_val_data = AC.predict(val_data)
+    autoencoded_train_inputs = AC.predict(x_train)
+    autoencoded_val_inputs = AC.predict(x_val)
     # dumpy_tensor
 
     # axs[2].plot(dumpy_tensor)
@@ -224,7 +225,7 @@ if __name__ == '__main__':
         early_stopping = tf.keras.callbacks.EarlyStopping(
             monitor='loss', patience=100, mode='min')
         model_history = model.fit(
-            autoencoded_train_data, validation_data=autoencoded_val_data, epochs=750, batch_size=150, callbacks=[early_stopping])
+            x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=750, batch_size=150, callbacks=[early_stopping])
         print(model.summary())
 
     else:
@@ -235,8 +236,7 @@ if __name__ == '__main__':
         model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(
             learning_rate=0.01), metrics=[tf.metrics.MeanSquaredError()])
         model.run_eagerly = False
-        model_history = model.fit(autoencoded_train_data, epochs=500,
-                                  validation_data=autoencoded_val_data, callbacks=[early_stopping])
+        model_history = model.fit(x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=500, callbacks=[early_stopping])
         print(model.summary())
 
         # Plot loss from RNN
