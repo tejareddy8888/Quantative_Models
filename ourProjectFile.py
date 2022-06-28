@@ -178,7 +178,7 @@ if __name__ == '__main__':
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         0.01, decay_steps=50, decay_rate=0.97, staircase=True)
     AC.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.SGD(
-        learning_rate=lr_schedule), metrics=[tf.metrics.MeanSquaredError(), ])
+        learning_rate=lr_schedule))
     AC.run_eagerly = True
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='loss', patience=50, mode='min')
@@ -231,7 +231,7 @@ if __name__ == '__main__':
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
             0.01, decay_steps=150, decay_rate=0.95, staircase=True)
         model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.SGD(
-            learning_rate=lr_schedule), metrics=[tf.metrics.MeanSquaredError()])
+            learning_rate=lr_schedule))
         model.run_eagerly = False
         early_stopping = tf.keras.callbacks.EarlyStopping(
             monitor='loss', patience=100, mode='min')
@@ -245,7 +245,7 @@ if __name__ == '__main__':
                                             return_state=False, activation=None, use_bias=False))
         model.add(tf.keras.layers.Dense(1, activation=None, use_bias=False))
         model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(
-            learning_rate=0.01), metrics=[tf.metrics.MeanSquaredError()])
+            learning_rate=0.01))
         model.run_eagerly = False
         model_history = model.fit(x=autoencoded_train_inputs, y=y_train, validation_data=(autoencoded_val_inputs, y_val), epochs=500, callbacks=[early_stopping])
         print(model.summary())
