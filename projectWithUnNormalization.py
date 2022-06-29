@@ -2,9 +2,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from scipy import stats
 import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
 
 import pmdarima as pm
 
@@ -110,37 +109,18 @@ def load_data(testSize):
     return data_df[:-testSize], data_df[-testSize:]
 
 
-def preprocess_data(df, input_columns,):
-    """ This function can also be called as feature scaling like normalization, min-max scaling, 
-    also test sklearn.preprocessing import StandardScaler or other preprocessing
-    """
-    VIX_phase = df.apply(
+def convert_and_add_phases(array, columns, index):
+    df = pd.DataFrame(array,columns=columns,index=index)
+
+    df['VIX_phase'] = df.apply(
         lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1
     )
-    M2_phase = df.apply(
+    df['M2_phase'] =df.apply(
         lambda x: 'low' if x['M2'] < (df['M2'].mean()-(0.5*df['M2'].std())) else 'high' if x['M2'] > (df['M2'].mean()+(0.5*df['M2'].std())) else 'medium', axis=1
     )
-    _OIL_phase = df.apply(
+    df['_OIL_phase'] = df.apply(
         lambda x: 'low' if x['_OIL'] < (df['_OIL'].mean()-(0.5*df['_OIL'].std())) else 'high' if x['_OIL'] > (df['_OIL'].mean()+(0.5*df['_OIL'].std())) else 'medium', axis=1
     )
-    df = (df - df.mean()) / df.std()
-
-    # response = StationaryCheck(df, input_columns)
-
-    # for column, p_values in response:
-    #     if p_values > 0.05:
-    #         ndiffs = pm.arima.ndiffs(df[column], alpha=0.05, test='adf', max_d=4)
-    #         print(column+' needs '+str(ndiffs)+' order differentiation')
-
-    #         if ndiffs == 1:
-    #             column_series = df.rolling(window=2).apply(lambda x: x.iloc[1] - x.iloc[0]).dropna().loc[:,[column]]
-    #             df = df.iloc[1:,:]
-    #             df.loc[:,column] = column_series
-
-    df['VIX_phase'] = VIX_phase
-    df['M2_phase'] = M2_phase
-    df['_OIL_phase'] = _OIL_phase
-
     return df
 
 
@@ -149,23 +129,27 @@ if __name__ == '__main__':
     testSize = 250
     timesteps = 7
     pooling = 1
-    input_columns = ['MOV ', 'VOL', '_MKT', 'Rho', 'CPI']
+    input_columns = ['MOV ', 'VOL', 'Rho', 'CPI', '_MKT',]
     target_columns = ['_MKT']
 
     # Load the data from the sheet
     train_df, test_df = load_data(testSize)
 
     # Normalize the entire dataset,
-    train_df = preprocess_data(train_df, input_columns)
-    test_df = preprocess_data(test_df, input_columns)
+    # train_df = preprocess_data(train_df, input_columns)
+    # test_df = preprocess_data(test_df, input_columns)
+    scaler = StandardScaler()
+
+    train_array = scaler.fit_transform(train_df)
+    test_array = scaler.transform(test_df)
 
     # creating a sliding windowed data
     # Few constants like input window of number of time steps width and prediction timesteps width
     # Width = timesteps +1 because need to include the target at T
     window = WindowGenerator(input_width=(timesteps+1), label_width=1, shift=1,
-                             input_columns=input_columns, label_columns=target_columns, all_columns=train_df.iloc[:,:-3].columns)
+                             input_columns=input_columns, label_columns=target_columns, all_columns=train_df.columns)
 
-    td = window.make_dataset(train_df.iloc[:,:-3], True, 250)
+    td = window.make_dataset(train_array, True, 250)
     train_data = td.take(3)
     val_data = td.skip(3)
 
@@ -300,88 +284,106 @@ if __name__ == '__main__':
             axs.legend(['training loss', 'validation loss'])
             plt.show()
 
-    eval_train = window.make_dataset(train_df.iloc[:,:-3], shuffle=False)
-    eval_test = window.make_dataset(test_df.iloc[:,:-3], shuffle=False)
+
+    prediction_column = '_MKT'
+    prediction_column_index = train_df.columns.get_loc(prediction_column)
+    actual_columns = train_df.columns
+
+    eval_train = window.make_dataset(train_array, shuffle=False)
+    eval_test = window.make_dataset(test_array, shuffle=False)
+
+    convertable_train_array = np.empty(shape=train_array.shape)
+    np.copyto(convertable_train_array,train_array) 
+
+    convertable_test_array = np.empty(shape=test_array.shape)
+    np.copyto(convertable_test_array,test_array) 
+
+    unscaled_train_array = scaler.inverse_transform(train_array)
+    unscaled_test_array = scaler.inverse_transform(test_array)
+
+    train_df = convert_and_add_phases(unscaled_train_array,actual_columns, train_df.index)
+    test_df = convert_and_add_phases(unscaled_test_array,actual_columns,test_df.index)
 
     # CHECK Overall Model performance on Train Data
     plt.figure()
-    plt.subplot(331)
-    y_pred = model.predict(eval_train)
-    y_true = np.concatenate([y for x, y in eval_train], axis=0)
+    plt.subplot()
+    normalized_y_pred = model.predict(eval_train)
+    convertable_train_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
+    y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_train_array),actual_columns, train_df.index).iloc[timesteps+1:,prediction_column_index]
+    y_true = train_df[timesteps+1:].iloc[:,prediction_column_index]
     insample_mse = tf.reduce_mean(tf.keras.losses.MSE(y_true, y_pred))
-    plt.plot(y_true[:, -1, -1])
-    plt.plot(y_pred[:, -1], '--')
+    plt.plot(y_true)
+    plt.plot(y_pred, '--')
     plt.title('in-sample mse =%1.2f' % insample_mse)
     plt.legend(['y_true', 'y_pred'])
 
-    plt.subplot(332)
-    y_mkt = train_df.iloc[lb+lf:, :].loc[:, '_MKT']
+    plt.figure()
+    plt.subplot()
+    y_mkt = train_df.iloc[lb+lf:, prediction_column_index]
     # position taking: Directional trading strategy
-    y_pred = np.squeeze(y_pred[:,  -1])
-
+    y_pred = np.squeeze(y_pred)
     pos = np.sign(y_pred)
-
     pos[pos == -1] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl[:-1])))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('in-sample Sharpe ratio w/o threshold = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
+    plt.legend(['pnl [t+1]', 'underlying'])
 
-    plt.subplot(333)    
+    plt.figure()
+    plt.subplot()    
     # position taking: Directional trading strategy
+    y_mkt = train_df.iloc[lb+lf:, prediction_column_index]
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
     pos[pos == -1] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl)))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('in-sample Sharpe ratio with threshold = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
+    plt.legend(['pnl [t+1]', 'underlying'])
 
-    plt.subplot(334)
-    y_pred = model.predict(eval_test)
+    ### ERROR HERE
+    plt.figure()
+    plt.subplot()
+    normalized_y_pred = model.predict(eval_test)
+    convertable_test_array[lb+lf:,18] = np.squeeze(normalized_y_pred)
+    y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
     y_true = np.concatenate([y for x, y in eval_test], axis=0)
     mse = tf.reduce_mean(tf.keras.losses.MSE(y_true, y_pred))
     plt.plot(y_true[:, -1, -1])
-    plt.plot(y_pred[:, -1], '--')
+    plt.plot(y_pred, '--')
     plt.title('out-of-sample mse =%1.2f' % mse)
     plt.legend(['y_true', 'y_pred'])
 
-    plt.subplot(335)
-    y_mkt = test_df.iloc[lb+lf:, :].loc[:, '_MKT']
+    plt.figure()
+    plt.subplot()
+    y_mkt = test_df.iloc[lb+lf:, :].loc[:, prediction_column]
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
-    y_pred = np.squeeze(y_pred[:,  -1])
+    y_pred = np.squeeze(y_pred)
     pos = np.sign(y_pred)
     pos[pos == -1] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl[:-1])))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio w/o threshold = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
+    plt.legend(['pnl [t+1]', 'underlying'])
 
-    plt.subplot(336)
+    plt.figure()
+    plt.subplot()
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
     pos[pos == -1] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl)))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
-    plt.show()
+    plt.legend(['pnl [t+1]', 'underlying'])
 
+    plt.figure()
     plt.subplot()
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['VIX_phase']=='medium'].index.values)
@@ -394,15 +396,13 @@ if __name__ == '__main__':
     pos[pos == -1] = 0
     pos[[i for i in range(pos.shape[0]) if i not in phased_index]] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl)))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold with VIX phase = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
-    plt.show()
+    plt.legend(['pnl [t+1]',  'underlying'])
 
+    plt.figure()
     plt.subplot()
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['M2_phase']=='medium'].index.values)
@@ -415,15 +415,13 @@ if __name__ == '__main__':
     pos[pos == -1] = 0
     pos[[i for i in range(pos.shape[0]) if i not in phased_index]] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl)))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold with M2 phase = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
-    plt.show()
+    plt.legend(['pnl [t+1]', 'underlying'])
 
+    plt.figure()
     plt.subplot()
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['_OIL_phase']=='medium'].index.values)
@@ -436,11 +434,9 @@ if __name__ == '__main__':
     pos[pos == -1] = 0
     pos[[i for i in range(pos.shape[0]) if i not in phased_index]] = 0
     pnl = pos[1:] * y_mkt[:-1]
-    pnl2 = pos[2:] * y_mkt[:-2]
-    plt.plot(y_mkt.index[:-1], np.cumsum(pnl))
-    plt.plot(y_mkt.index[:-2], np.cumsum(pnl2), '--')
-    plt.plot(y_mkt.index[:-1], np.cumsum(y_mkt[:-1]))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl)))
+    plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + y_mkt[:-1])))
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold with OIL phase = %1.2f' % sr)
-    plt.legend(['pnl [t+1]', 'pnl [t+2]', 'underlying'])
+    plt.legend(['pnl [t+1]',  'underlying'])
     plt.show()

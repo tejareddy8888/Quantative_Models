@@ -1,0 +1,762 @@
+_____________Rho________________
+
+Augmneted Dickey_fuller Statistic: -2.816179
+p-value: 0.056000
+Variable :Rho is not stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________VOL________________
+
+Augmneted Dickey_fuller Statistic: -4.367211
+p-value: 0.000339
+Variable :VOL is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________MOV ________________
+
+Augmneted Dickey_fuller Statistic: -3.706558
+p-value: 0.004022
+Variable :MOV  is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________CF________________
+
+Augmneted Dickey_fuller Statistic: -4.661061
+p-value: 0.000100
+Variable :CF is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________UN________________
+
+Augmneted Dickey_fuller Statistic: -3.973949
+p-value: 0.001553
+Variable :UN is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________GDP________________
+
+Augmneted Dickey_fuller Statistic: -3.748115
+p-value: 0.003485
+Variable :GDP is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________M2________________
+
+Augmneted Dickey_fuller Statistic: -3.748969
+p-value: 0.003475
+Variable :M2 is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________CPI________________
+
+Augmneted Dickey_fuller Statistic: -0.682221
+p-value: 0.851301
+Variable :CPI is not stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________DIL________________
+
+Augmneted Dickey_fuller Statistic: -3.036519
+p-value: 0.031622
+Variable :DIL is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________M2________________
+
+Augmneted Dickey_fuller Statistic: -3.748969
+p-value: 0.003475
+Variable :M2 is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+______________OIL________________
+
+Augmneted Dickey_fuller Statistic: -11.570187
+p-value: 0.000000
+Variable :_OIL is stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+_____________CPI________________
+
+Augmneted Dickey_fuller Statistic: -0.682221
+p-value: 0.851301
+Variable :CPI is not stationary
+critical values at different levels:
+	1%: -3.435
+	5%: -2.864
+	10%: -2.568
+
+
+Rho needs 1 order differentiation
+CPI needs 1 order differentiation
+CPI needs 1 order differentiation
+
+ Causation results of Rho variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=0.3852  , p=0.5349  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=0.3860  , p=0.5344  , df=1
+likelihood ratio test: chi2=0.3860  , p=0.5344  , df=1
+parameter F test:         F=0.3852  , p=0.5349  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=0.2197  , p=0.8028  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=0.4410  , p=0.8021  , df=2
+likelihood ratio test: chi2=0.4409  , p=0.8022  , df=2
+parameter F test:         F=0.2197  , p=0.8028  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=0.3242  , p=0.8078  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=0.9778  , p=0.8066  , df=3
+likelihood ratio test: chi2=0.9775  , p=0.8067  , df=3
+parameter F test:         F=0.3242  , p=0.8078  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=0.2522  , p=0.9084  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=1.0155  , p=0.9074  , df=4
+likelihood ratio test: chi2=1.0151  , p=0.9075  , df=4
+parameter F test:         F=0.2522  , p=0.9084  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=0.3410  , p=0.8882  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=1.7190  , p=0.8865  , df=5
+likelihood ratio test: chi2=1.7179  , p=0.8866  , df=5
+parameter F test:         F=0.3410  , p=0.8882  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=0.2594  , p=0.9556  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=1.5717  , p=0.9546  , df=6
+likelihood ratio test: chi2=1.5707  , p=0.9547  , df=6
+parameter F test:         F=0.2594  , p=0.9556  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=0.3891  , p=0.9092  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=2.7544  , p=0.9068  , df=7
+likelihood ratio test: chi2=2.7516  , p=0.9070  , df=7
+parameter F test:         F=0.3891  , p=0.9092  , df_denom=1322, df_num=7
+
+ Causation results of VOL variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=1.7773  , p=0.1827  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=1.7813  , p=0.1820  , df=1
+likelihood ratio test: chi2=1.7801  , p=0.1821  , df=1
+parameter F test:         F=1.7773  , p=0.1827  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=3.2960  , p=0.0373  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=6.6167  , p=0.0366  , df=2
+likelihood ratio test: chi2=6.6005  , p=0.0369  , df=2
+parameter F test:         F=3.2960  , p=0.0373  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.8241  , p=0.1409  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=5.5010  , p=0.1386  , df=3
+likelihood ratio test: chi2=5.4897  , p=0.1393  , df=3
+parameter F test:         F=1.8241  , p=0.1409  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=2.2035  , p=0.0665  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=8.8738  , p=0.0643  , df=4
+likelihood ratio test: chi2=8.8445  , p=0.0651  , df=4
+parameter F test:         F=2.2035  , p=0.0665  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=2.8042  , p=0.0158  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=14.1371 , p=0.0148  , df=5
+likelihood ratio test: chi2=14.0629 , p=0.0152  , df=5
+parameter F test:         F=2.8042  , p=0.0158  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=2.8939  , p=0.0083  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=17.5340 , p=0.0075  , df=6
+likelihood ratio test: chi2=17.4201 , p=0.0079  , df=6
+parameter F test:         F=2.8939  , p=0.0083  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=2.5973  , p=0.0116  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=18.3876 , p=0.0103  , df=7
+likelihood ratio test: chi2=18.2623 , p=0.0108  , df=7
+parameter F test:         F=2.5973  , p=0.0116  , df_denom=1322, df_num=7
+
+ Causation results of MOV  variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=2.5920  , p=0.1076  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=2.5978  , p=0.1070  , df=1
+likelihood ratio test: chi2=2.5953  , p=0.1072  , df=1
+parameter F test:         F=2.5920  , p=0.1076  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.3607  , p=0.2568  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=2.7317  , p=0.2552  , df=2
+likelihood ratio test: chi2=2.7289  , p=0.2555  , df=2
+parameter F test:         F=1.3607  , p=0.2568  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=2.1863  , p=0.0879  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=6.5933  , p=0.0861  , df=3
+likelihood ratio test: chi2=6.5771  , p=0.0867  , df=3
+parameter F test:         F=2.1863  , p=0.0879  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=4.9006  , p=0.0006  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=19.7351 , p=0.0006  , df=4
+likelihood ratio test: chi2=19.5912 , p=0.0006  , df=4
+parameter F test:         F=4.9006  , p=0.0006  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=4.1113  , p=0.0010  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=20.7269 , p=0.0009  , df=5
+likelihood ratio test: chi2=20.5681 , p=0.0010  , df=5
+parameter F test:         F=4.1113  , p=0.0010  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=3.4070  , p=0.0024  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=20.6427 , p=0.0021  , df=6
+likelihood ratio test: chi2=20.4851 , p=0.0023  , df=6
+parameter F test:         F=3.4070  , p=0.0024  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=2.9028  , p=0.0051  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=20.5501 , p=0.0045  , df=7
+likelihood ratio test: chi2=20.3938 , p=0.0048  , df=7
+parameter F test:         F=2.9028  , p=0.0051  , df_denom=1322, df_num=7
+
+ Causation results of CF variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=1.0051  , p=0.3163  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=1.0074  , p=0.3155  , df=1
+likelihood ratio test: chi2=1.0070  , p=0.3156  , df=1
+parameter F test:         F=1.0051  , p=0.3163  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.9061  , p=0.1491  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=3.8264  , p=0.1476  , df=2
+likelihood ratio test: chi2=3.8209  , p=0.1480  , df=2
+parameter F test:         F=1.9061  , p=0.1491  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.2839  , p=0.2784  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=3.8720  , p=0.2756  , df=3
+likelihood ratio test: chi2=3.8665  , p=0.2763  , df=3
+parameter F test:         F=1.2839  , p=0.2784  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=1.2554  , p=0.2857  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=5.0556  , p=0.2816  , df=4
+likelihood ratio test: chi2=5.0461  , p=0.2826  , df=4
+parameter F test:         F=1.2554  , p=0.2857  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=1.2515  , p=0.2827  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=6.3093  , p=0.2773  , df=5
+likelihood ratio test: chi2=6.2945  , p=0.2786  , df=5
+parameter F test:         F=1.2515  , p=0.2827  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=1.0243  , p=0.4076  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=6.2060  , p=0.4005  , df=6
+likelihood ratio test: chi2=6.1917  , p=0.4021  , df=6
+parameter F test:         F=1.0243  , p=0.4076  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=1.1772  , p=0.3127  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=8.3341  , p=0.3041  , df=7
+likelihood ratio test: chi2=8.3083  , p=0.3062  , df=7
+parameter F test:         F=1.1772  , p=0.3127  , df_denom=1322, df_num=7
+
+ Causation results of UN variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=1.6895  , p=0.1939  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=1.6932  , p=0.1932  , df=1
+likelihood ratio test: chi2=1.6922  , p=0.1933  , df=1
+parameter F test:         F=1.6895  , p=0.1939  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=0.8442  , p=0.4301  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=1.6947  , p=0.4286  , df=2
+likelihood ratio test: chi2=1.6936  , p=0.4288  , df=2
+parameter F test:         F=0.8442  , p=0.4301  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=0.8140  , p=0.4861  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=2.4549  , p=0.4835  , df=3
+likelihood ratio test: chi2=2.4526  , p=0.4839  , df=3
+parameter F test:         F=0.8140  , p=0.4861  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=0.8820  , p=0.4740  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=3.5517  , p=0.4701  , df=4
+likelihood ratio test: chi2=3.5470  , p=0.4708  , df=4
+parameter F test:         F=0.8820  , p=0.4740  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=0.8771  , p=0.4957  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=4.4217  , p=0.4904  , df=5
+likelihood ratio test: chi2=4.4144  , p=0.4914  , df=5
+parameter F test:         F=0.8771  , p=0.4957  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=0.6369  , p=0.7008  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=3.8588  , p=0.6958  , df=6
+likelihood ratio test: chi2=3.8532  , p=0.6965  , df=6
+parameter F test:         F=0.6369  , p=0.7008  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=1.1913  , p=0.3045  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=8.4334  , p=0.2959  , df=7
+likelihood ratio test: chi2=8.4069  , p=0.2981  , df=7
+parameter F test:         F=1.1913  , p=0.3045  , df_denom=1322, df_num=7
+
+ Causation results of GDP variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=0.3767  , p=0.5395  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=0.3775  , p=0.5389  , df=1
+likelihood ratio test: chi2=0.3775  , p=0.5390  , df=1
+parameter F test:         F=0.3767  , p=0.5395  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=0.1752  , p=0.8393  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=0.3517  , p=0.8387  , df=2
+likelihood ratio test: chi2=0.3516  , p=0.8388  , df=2
+parameter F test:         F=0.1752  , p=0.8393  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=0.5902  , p=0.6215  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=1.7800  , p=0.6193  , df=3
+likelihood ratio test: chi2=1.7788  , p=0.6196  , df=3
+parameter F test:         F=0.5902  , p=0.6215  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=0.8229  , p=0.5105  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=3.3138  , p=0.5067  , df=4
+likelihood ratio test: chi2=3.3097  , p=0.5074  , df=4
+parameter F test:         F=0.8229  , p=0.5105  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=0.7981  , p=0.5510  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=4.0236  , p=0.5460  , df=5
+likelihood ratio test: chi2=4.0176  , p=0.5469  , df=5
+parameter F test:         F=0.7981  , p=0.5510  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=0.6701  , p=0.6739  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=4.0603  , p=0.6685  , df=6
+likelihood ratio test: chi2=4.0541  , p=0.6693  , df=6
+parameter F test:         F=0.6701  , p=0.6739  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=0.6094  , p=0.7486  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=4.3141  , p=0.7430  , df=7
+likelihood ratio test: chi2=4.3071  , p=0.7438  , df=7
+parameter F test:         F=0.6094  , p=0.7486  , df_denom=1322, df_num=7
+
+ Causation results of M2 variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=3.0953  , p=0.0787  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=3.1022  , p=0.0782  , df=1
+likelihood ratio test: chi2=3.0986  , p=0.0784  , df=1
+parameter F test:         F=3.0953  , p=0.0787  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.5669  , p=0.2091  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=3.1455  , p=0.2075  , df=2
+likelihood ratio test: chi2=3.1418  , p=0.2079  , df=2
+parameter F test:         F=1.5669  , p=0.2091  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.8783  , p=0.1313  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=5.6645  , p=0.1291  , df=3
+likelihood ratio test: chi2=5.6526  , p=0.1298  , df=3
+parameter F test:         F=1.8783  , p=0.1313  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=1.5762  , p=0.1782  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=6.3473  , p=0.1747  , df=4
+likelihood ratio test: chi2=6.3323  , p=0.1757  , df=4
+parameter F test:         F=1.5762  , p=0.1782  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=1.3883  , p=0.2258  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=6.9988  , p=0.2207  , df=5
+likelihood ratio test: chi2=6.9806  , p=0.2221  , df=5
+parameter F test:         F=1.3883  , p=0.2258  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=1.5855  , p=0.1477  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=9.6064  , p=0.1422  , df=6
+likelihood ratio test: chi2=9.5720  , p=0.1439  , df=6
+parameter F test:         F=1.5855  , p=0.1477  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=1.3943  , p=0.2037  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=9.8706  , p=0.1960  , df=7
+likelihood ratio test: chi2=9.8343  , p=0.1982  , df=7
+parameter F test:         F=1.3943  , p=0.2037  , df_denom=1322, df_num=7
+
+ Causation results of CPI variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=2.5923  , p=0.1076  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=2.5981  , p=0.1070  , df=1
+likelihood ratio test: chi2=2.5956  , p=0.1072  , df=1
+parameter F test:         F=2.5923  , p=0.1076  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.3608  , p=0.2568  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=2.7318  , p=0.2552  , df=2
+likelihood ratio test: chi2=2.7290  , p=0.2555  , df=2
+parameter F test:         F=1.3608  , p=0.2568  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.7237  , p=0.1602  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=5.1982  , p=0.1578  , df=3
+likelihood ratio test: chi2=5.1882  , p=0.1585  , df=3
+parameter F test:         F=1.7237  , p=0.1602  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=1.3761  , p=0.2400  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=5.5416  , p=0.2361  , df=4
+likelihood ratio test: chi2=5.5301  , p=0.2371  , df=4
+parameter F test:         F=1.3761  , p=0.2400  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=1.5306  , p=0.1772  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=7.7164  , p=0.1726  , df=5
+likelihood ratio test: chi2=7.6943  , p=0.1739  , df=5
+parameter F test:         F=1.5306  , p=0.1772  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=2.3172  , p=0.0313  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=14.0394 , p=0.0292  , df=6
+likelihood ratio test: chi2=13.9663 , p=0.0300  , df=6
+parameter F test:         F=2.3172  , p=0.0313  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=2.5338  , p=0.0136  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=17.9377 , p=0.0123  , df=7
+likelihood ratio test: chi2=17.8185 , p=0.0128  , df=7
+parameter F test:         F=2.5338  , p=0.0136  , df_denom=1322, df_num=7
+
+ Causation results of DIL variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=0.2337  , p=0.6289  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=0.2342  , p=0.6284  , df=1
+likelihood ratio test: chi2=0.2342  , p=0.6284  , df=1
+parameter F test:         F=0.2337  , p=0.6289  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=0.6963  , p=0.4986  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=1.3978  , p=0.4971  , df=2
+likelihood ratio test: chi2=1.3971  , p=0.4973  , df=2
+parameter F test:         F=0.6963  , p=0.4986  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=0.7379  , p=0.5295  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=2.2253  , p=0.5270  , df=3
+likelihood ratio test: chi2=2.2234  , p=0.5273  , df=3
+parameter F test:         F=0.7379  , p=0.5295  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=0.5754  , p=0.6805  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=2.3173  , p=0.6776  , df=4
+likelihood ratio test: chi2=2.3153  , p=0.6780  , df=4
+parameter F test:         F=0.5754  , p=0.6805  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=0.4931  , p=0.7816  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=2.4858  , p=0.7786  , df=5
+likelihood ratio test: chi2=2.4835  , p=0.7790  , df=5
+parameter F test:         F=0.4931  , p=0.7816  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=0.4403  , p=0.8521  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=2.6676  , p=0.8493  , df=6
+likelihood ratio test: chi2=2.6650  , p=0.8496  , df=6
+parameter F test:         F=0.4403  , p=0.8521  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=0.3996  , p=0.9029  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=2.8287  , p=0.9004  , df=7
+likelihood ratio test: chi2=2.8257  , p=0.9006  , df=7
+parameter F test:         F=0.3996  , p=0.9029  , df_denom=1322, df_num=7
+
+ Causation results of M2 variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=3.0953  , p=0.0787  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=3.1022  , p=0.0782  , df=1
+likelihood ratio test: chi2=3.0986  , p=0.0784  , df=1
+parameter F test:         F=3.0953  , p=0.0787  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.5669  , p=0.2091  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=3.1455  , p=0.2075  , df=2
+likelihood ratio test: chi2=3.1418  , p=0.2079  , df=2
+parameter F test:         F=1.5669  , p=0.2091  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.8783  , p=0.1313  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=5.6645  , p=0.1291  , df=3
+likelihood ratio test: chi2=5.6526  , p=0.1298  , df=3
+parameter F test:         F=1.8783  , p=0.1313  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=1.5762  , p=0.1782  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=6.3473  , p=0.1747  , df=4
+likelihood ratio test: chi2=6.3323  , p=0.1757  , df=4
+parameter F test:         F=1.5762  , p=0.1782  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=1.3883  , p=0.2258  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=6.9988  , p=0.2207  , df=5
+likelihood ratio test: chi2=6.9806  , p=0.2221  , df=5
+parameter F test:         F=1.3883  , p=0.2258  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=1.5855  , p=0.1477  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=9.6064  , p=0.1422  , df=6
+likelihood ratio test: chi2=9.5720  , p=0.1439  , df=6
+parameter F test:         F=1.5855  , p=0.1477  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=1.3943  , p=0.2037  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=9.8706  , p=0.1960  , df=7
+likelihood ratio test: chi2=9.8343  , p=0.1982  , df=7
+parameter F test:         F=1.3943  , p=0.2037  , df_denom=1322, df_num=7
+
+ Causation results of _OIL variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=0.7886  , p=0.3747  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=0.7904  , p=0.3740  , df=1
+likelihood ratio test: chi2=0.7901  , p=0.3741  , df=1
+parameter F test:         F=0.7886  , p=0.3747  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.2120  , p=0.2979  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=2.4330  , p=0.2963  , df=2
+likelihood ratio test: chi2=2.4308  , p=0.2966  , df=2
+parameter F test:         F=1.2120  , p=0.2979  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.2013  , p=0.3080  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=3.6228  , p=0.3052  , df=3
+likelihood ratio test: chi2=3.6179  , p=0.3058  , df=3
+parameter F test:         F=1.2013  , p=0.3080  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=1.1353  , p=0.3382  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=4.5720  , p=0.3341  , df=4
+likelihood ratio test: chi2=4.5642  , p=0.3350  , df=4
+parameter F test:         F=1.1353  , p=0.3382  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=1.0296  , p=0.3986  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=5.1906  , p=0.3931  , df=5
+likelihood ratio test: chi2=5.1806  , p=0.3942  , df=5
+parameter F test:         F=1.0296  , p=0.3986  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=1.5514  , p=0.1579  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=9.3995  , p=0.1523  , df=6
+likelihood ratio test: chi2=9.3667  , p=0.1540  , df=6
+parameter F test:         F=1.5514  , p=0.1579  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=2.3042  , p=0.0246  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=16.3126 , p=0.0224  , df=7
+likelihood ratio test: chi2=16.2139 , p=0.0232  , df=7
+parameter F test:         F=2.3042  , p=0.0246  , df_denom=1322, df_num=7
+
+ Causation results of CPI variable granger causing _MKT
+
+Granger Causality
+number of lags (no zero) 1
+ssr based F test:         F=2.5923  , p=0.1076  , df_denom=1340, df_num=1
+ssr based chi2 test:   chi2=2.5981  , p=0.1070  , df=1
+likelihood ratio test: chi2=2.5956  , p=0.1072  , df=1
+parameter F test:         F=2.5923  , p=0.1076  , df_denom=1340, df_num=1
+
+Granger Causality
+number of lags (no zero) 2
+ssr based F test:         F=1.3608  , p=0.2568  , df_denom=1337, df_num=2
+ssr based chi2 test:   chi2=2.7318  , p=0.2552  , df=2
+likelihood ratio test: chi2=2.7290  , p=0.2555  , df=2
+parameter F test:         F=1.3608  , p=0.2568  , df_denom=1337, df_num=2
+
+Granger Causality
+number of lags (no zero) 3
+ssr based F test:         F=1.7237  , p=0.1602  , df_denom=1334, df_num=3
+ssr based chi2 test:   chi2=5.1982  , p=0.1578  , df=3
+likelihood ratio test: chi2=5.1882  , p=0.1585  , df=3
+parameter F test:         F=1.7237  , p=0.1602  , df_denom=1334, df_num=3
+
+Granger Causality
+number of lags (no zero) 4
+ssr based F test:         F=1.3761  , p=0.2400  , df_denom=1331, df_num=4
+ssr based chi2 test:   chi2=5.5416  , p=0.2361  , df=4
+likelihood ratio test: chi2=5.5301  , p=0.2371  , df=4
+parameter F test:         F=1.3761  , p=0.2400  , df_denom=1331, df_num=4
+
+Granger Causality
+number of lags (no zero) 5
+ssr based F test:         F=1.5306  , p=0.1772  , df_denom=1328, df_num=5
+ssr based chi2 test:   chi2=7.7164  , p=0.1726  , df=5
+likelihood ratio test: chi2=7.6943  , p=0.1739  , df=5
+parameter F test:         F=1.5306  , p=0.1772  , df_denom=1328, df_num=5
+
+Granger Causality
+number of lags (no zero) 6
+ssr based F test:         F=2.3172  , p=0.0313  , df_denom=1325, df_num=6
+ssr based chi2 test:   chi2=14.0394 , p=0.0292  , df=6
+likelihood ratio test: chi2=13.9663 , p=0.0300  , df=6
+parameter F test:         F=2.3172  , p=0.0313  , df_denom=1325, df_num=6
+
+Granger Causality
+number of lags (no zero) 7
+ssr based F test:         F=2.5338  , p=0.0136  , df_denom=1322, df_num=7
+ssr based chi2 test:   chi2=17.9377 , p=0.0123  , df=7
+likelihood ratio test: chi2=17.8185 , p=0.0128  , df=7
+parameter F test:         F=2.5338  , p=0.0136  , df_denom=1322, df_num=7
+
+
+           Rho       VOL      MOV   ...       CPI       DIL      _OIL
+Rho   1.000000 -0.052327 -0.042411  ...  0.333392  0.309049  0.030689
+VOL  -0.052327  1.000000  0.645815  ...  0.036860  0.058757 -0.138805
+MOV  -0.042411  0.645815  1.000000  ...  0.009501  0.210950 -0.056976
+CF    0.196445 -0.456816 -0.404198  ...  0.014857  0.198237 -0.002622
+UN   -0.092342  0.353151  0.125277  ... -0.293546 -0.339959  0.116502
+GDP   0.336940 -0.288216 -0.113889  ...  0.367688  0.458495  0.007069
+M2   -0.058175  0.228650 -0.125573  ...  0.136228 -0.155926  0.080157
+CPI   0.333392  0.036860  0.009501  ...  1.000000  0.160770  0.005596
+DIL   0.309049  0.058757  0.210950  ...  0.160770  1.000000  0.036238
+_OIL  0.030689 -0.138805 -0.056976  ...  0.005596  0.036238  1.000000
+
+[10 rows x 10 columns]

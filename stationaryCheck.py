@@ -6,11 +6,7 @@ import pmdarima as pm
 
 from statsmodels.tsa.stattools import grangercausalitytests
 
-PHASE_VARIABLES = ['Rho', 'VOL', 'MOV ', 'CF', 'UN', 'GDP', 'M2', 'CPI', 'DIL']
-
-FORECASTING_VARIABLES = ['_MKT', 'MG', 'RV']
-
-PHASE_VARIABLES = ['VOL', 'M2', '_OIL', 'CPI', 'Rho', '_MKT']
+INPUT_VARIABLES = ['Rho', 'CPI', 'VOL', 'MOV ', 'CF', 'UN', 'GDP', 'M2',  'DIL', 'M2', '_OIL',]
 
 TARGET_VARIABLES = '_MKT'
 
@@ -67,16 +63,16 @@ if __name__ == '__main__':
     # Load the data from the sheet
     data = load_data()
 
-    response = StationaryCheck(data, PHASE_VARIABLES)
+    response = StationaryCheck(data, INPUT_VARIABLES)
 
     for column, p_values in response:
         if p_values > 0.05:
             ndiffs = pm.arima.ndiffs(data[column], alpha=0.05, test='adf', max_d=4)
             print(column+' needs '+str(ndiffs)+' order differentiation')
 
-    matrix = correlation_matrix(data, PHASE_VARIABLES)
+    matrix = correlation_matrix(data, INPUT_VARIABLES)
 
-    for eachPhase in PHASE_VARIABLES:
+    for eachPhase in INPUT_VARIABLES:
         causationCheck(data, TARGET_VARIABLES, eachPhase)
 
     print(matrix)
