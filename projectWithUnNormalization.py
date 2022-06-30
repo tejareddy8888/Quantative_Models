@@ -125,7 +125,6 @@ def graph_phase_variables(phase_variables):
         plt.axhline(y=(df[variable].mean()+(0.5*df[variable].std())), color='g', linestyle='-')
         plt.axhline(y=(df[variable].mean()-(0.5*df[variable].std())), color='r', linestyle='-')
         plt.legend([variable,'upperbound','lowerbound'])
-        plt.show()
 
 def graph_normalized_and_autoencoded():
     # Graph of forecasting variables and how autoencoder smooth them
@@ -141,7 +140,6 @@ def graph_normalized_and_autoencoded():
         plt.plot(variable[timesteps:])
         plt.plot(autoencoded)
         plt.legend([" "+var_name,'Autoencoded '+var_name])
-        plt.show()
 
 
 if __name__ == '__main__':
@@ -229,14 +227,9 @@ if __name__ == '__main__':
     # Define learning rate
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(0.001, decay_steps=300, decay_rate=0.95, staircase=True)
     # Define early stopping condition for model
-    early_stopping = tf.keras.callbacks.EarlyStopping( monitor='val_loss', patience=30, mode='min')
+    early_stopping = tf.keras.callbacks.EarlyStopping( monitor='val_loss', patience=100, mode='min')
 
-    # define sliding window
-    lf = 1      # look forward
-    ks = 2     # kernel size
-    lw = 1      # label width
-    lb = timesteps
-    through_cnn = True
+    through_cnn = False
     # Train with RNN
     if through_cnn:
         cnn_checkpoint_path = "checkpoint/cnn.ckpt"
@@ -245,7 +238,7 @@ if __name__ == '__main__':
 
         # Build CNN model                                               
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=ks, activation='relu', use_bias=False, input_shape=(timesteps, len(input_columns))))
+        model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=2, activation='relu', use_bias=False, input_shape=(timesteps, len(input_columns))))
         model.add(tf.keras.layers.MaxPooling1D(pool_size=2,))
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(64, activation='relu'))
@@ -259,7 +252,7 @@ if __name__ == '__main__':
         if os.path.isfile(os.getcwd()+'/'+cnn_checkpoint_path+'.index'):
             model.load_weights(cnn_checkpoint_path)
         else:
-            model_history = model.fit(train_data=model_train_dataset, validation_data=model_val_dataset, epochs=300, callbacks=[cnn_checkpoint_callback, early_stopping])
+            model_history = model.fit(model_train_dataset, validation_data=model_val_dataset, epochs=300, callbacks=[cnn_checkpoint_callback, early_stopping])
             print(model.summary())
 
             # Plot loss from CNN
@@ -289,7 +282,7 @@ if __name__ == '__main__':
         if os.path.isfile(os.getcwd()+'/'+rnn_checkpoint_path+'.index'):
             model.load_weights(rnn_checkpoint_path)
         else:
-            model_history = model.fit(train_data=model_train_dataset, validation_data=model_val_dataset, epochs=300, callbacks=[early_stopping, rnn_checkpoint_callback])
+            model_history = model.fit(x=x_train, y=y_train, validation_data=(x_val, y_val), epochs=300, callbacks=[rnn_checkpoint_callback])
             print(model.summary())
 
             # Plot loss from RNN
@@ -332,7 +325,7 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot()
-    y_mkt = train_df.iloc[lb+lf:, prediction_column_index]
+    y_mkt = train_df.iloc[timesteps+1:, prediction_column_index]
     # position taking: Directional trading strategy
     y_pred = np.squeeze(y_pred)
     pos = np.sign(y_pred)
@@ -347,7 +340,7 @@ if __name__ == '__main__':
     plt.figure()
     plt.subplot()    
     # position taking: Directional trading strategy with threshold
-    y_mkt = train_df.iloc[lb+lf:, prediction_column_index]
+    y_mkt = train_df.iloc[timesteps+1:, prediction_column_index]
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -abs(x))(x) for x in y_pred]))
     pos[pos == -1] = 0
     pnl = pos[1:] * y_mkt[:-1]
@@ -357,7 +350,6 @@ if __name__ == '__main__':
     plt.title('in-sample Sharpe ratio with threshold = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
 
-    ### ERROR HERE
     plt.figure()
     plt.subplot()
     normalized_y_pred = model.predict(eval_test)
@@ -365,14 +357,14 @@ if __name__ == '__main__':
     y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
     y_true = test_df.iloc[timesteps+1:,prediction_column_index]
     mse = tf.reduce_mean(tf.keras.losses.MSE(y_true, y_pred))
-    plt.plot(y_true[:, -1, -1])
+    plt.plot(y_true)
     plt.plot(y_pred, '--')
     plt.title('out-of-sample mse =%1.2f' % mse)
     plt.legend(['y_true', 'y_pred'])
 
     plt.figure()
     plt.subplot()
-    y_mkt = test_df.iloc[lb+lf:, :].loc[:, prediction_column]
+    y_mkt = test_df.iloc[timesteps+1:, :].loc[:, prediction_column]
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     y_pred = np.squeeze(y_pred)
     pos = np.sign(y_pred)
@@ -399,7 +391,7 @@ if __name__ == '__main__':
 
 
     # Finding the threshold for each phase variable that model perform the best
-    evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
+    evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
     normalized_y_pred = model.predict(eval_train)
     convertable_train_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
     y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
@@ -417,8 +409,12 @@ if __name__ == '__main__':
     # Trading strategy with thresholds from phase variables
     plt.figure()
     plt.subplot()
+    evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
+    phased_index = list(evaluating_test[evaluating_test['VIX_phase']=='low'].index.values)
+    y_mkt =  test_df.iloc[timesteps+1:, :].loc[:,'_MKT']
+    y_pred = model.predict(eval_test)
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
-    y_pred = np.squeeze(y_pred[:,  -1])
+    y_pred = np.squeeze(y_pred)
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
     pos[pos == -1] = 0
     pos[[i for i in range(pos.shape[0]) if i not in phased_index]] = 0
@@ -431,9 +427,9 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot()
-    evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
+    evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['M2_phase']=='low'].index.values)
-    y_mkt =  test_df.iloc[lb+lf:, :].loc[:,'_MKT']
+    y_mkt =  test_df.iloc[timesteps+1:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
    
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
@@ -450,9 +446,9 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot()
-    evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
+    evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['_OIL_phase']=='low'].index.values)
-    y_mkt =  test_df.iloc[lb+lf:, :].loc[:,'_MKT']
+    y_mkt =  test_df.iloc[timesteps+1:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
    
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
