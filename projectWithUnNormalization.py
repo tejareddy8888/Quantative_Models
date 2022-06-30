@@ -396,8 +396,7 @@ if __name__ == '__main__':
     plt.title('out-of-sample Sharpe ratio with threshold = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
 
-    plt.figure()
-    plt.subplot()
+
 
     # Finding the threshold for each phase variable that model perform the best
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
@@ -415,12 +414,9 @@ if __name__ == '__main__':
         print("High = %f" %tf.reduce_mean(tf.keras.losses.MSE(y_true[high_phased_index], y_pred[high_phased_index])))
         print()
 
-    evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
-    ## fetch the phase value below using the mse's computed
-    phased_index = list(evaluating_test[evaluating_test['VIX_phase']=='medium'].index.values)
-    y_mkt =  test_df.iloc[lb+lf:, :].loc[:,'_MKT']
-    y_pred = model.predict(eval_test)
-   
+    # Trading strategy with thresholds from phase variables
+    plt.figure()
+    plt.subplot()
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     y_pred = np.squeeze(y_pred[:,  -1])
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
@@ -436,7 +432,7 @@ if __name__ == '__main__':
     plt.figure()
     plt.subplot()
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
-    phased_index = list(evaluating_test[evaluating_test['M2_phase']=='medium'].index.values)
+    phased_index = list(evaluating_test[evaluating_test['M2_phase']=='low'].index.values)
     y_mkt =  test_df.iloc[lb+lf:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
    
@@ -455,7 +451,7 @@ if __name__ == '__main__':
     plt.figure()
     plt.subplot()
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
-    phased_index = list(evaluating_test[evaluating_test['_OIL_phase']=='medium'].index.values)
+    phased_index = list(evaluating_test[evaluating_test['_OIL_phase']=='low'].index.values)
     y_mkt =  test_df.iloc[lb+lf:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
    
