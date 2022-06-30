@@ -8,9 +8,6 @@ from sklearn.preprocessing import StandardScaler
 import pmdarima as pm
 
 
-from stationaryCheck import StationaryCheck
-
-
 class WindowGenerator():
     def __init__(self, input_width, label_width, shift, input_columns, label_columns, all_columns):
 
@@ -102,8 +99,7 @@ class Autoencoder(tf.keras.models.Model):
 
 
 def load_data(testSize):
-    data_df = pd.read_excel('./market_data.xlsx',
-                            sheet_name='data', engine='openpyxl')
+    data_df = pd.read_excel('./market_data.xlsx', sheet_name='data', engine='openpyxl')
     data_df.set_index('Date', drop=True, inplace=True)
 
     return data_df[:-testSize], data_df[-testSize:]
@@ -136,9 +132,10 @@ def graph_phase_variables(phase_variables):
         plt.show()
 
 def graph_normalized_and_autoencoded():
+    df = pd.concat([train_df, test_df],axis=0)
     variables = window.make_dataset(np.concatenate([train_array,test_array],axis=0), shuffle=False)
-    autoencoded_variables = AC.predict(forecast_variables)
-    for var_name in input_columns
+    autoencoded_variables = AC.predict(variables)
+    for var_name in input_columns:
         variable = np.array((df[var_name]- df[var_name].mean())/df[var_name].std())
         index = input_columns.index(var_name)
         autoencoded = autoencoded_variables[:,timesteps,index]
@@ -415,15 +412,21 @@ if __name__ == '__main__':
     plt.figure()
     plt.subplot()
 
-    ## Checkout this code 
-    # ## Fetch the train df 
-    # ## Under the train df, we will compute mse on each phase and perform 
-    # normalized_y_pred = model.predict(eval_train)
-    # convertable_train_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
-    # y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
-    # y_true = test_df.iloc[timesteps+1:,prediction_column_index]
-
-    # mse(y_pred[low_phased_index, y_true[low_phase_index]])
+    # Finding the threshold for each phase variable that model perform the best
+    evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
+    normalized_y_pred = model.predict(eval_train)
+    convertable_train_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
+    y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
+    y_true = test_df.iloc[timesteps+1:,prediction_column_index]
+    for variable in ('M2_phase','_OIL_phase','VIX_phase'):
+        low_phased_index = list(evaluating_test[evaluating_test[variable]=='low'].index.values)
+        medium_phased_index = list(evaluating_test[evaluating_test[variable]=='medium'].index.values)
+        high_phased_index = list(evaluating_test[evaluating_test[variable]=='high'].index.values)
+        print(variable+" MSE: ")
+        print("Low = %f" %tf.reduce_mean(tf.keras.losses.MSE(y_true[low_phased_index], y_pred[low_phased_index])))
+        print("Normal = %f" %tf.reduce_mean(tf.keras.losses.MSE(y_true[medium_phased_index], y_pred[medium_phased_index])))
+        print("High = %f" %tf.reduce_mean(tf.keras.losses.MSE(y_true[high_phased_index], y_pred[high_phased_index])))
+        print()
 
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
     ## fetch the phase value below using the mse's computed
