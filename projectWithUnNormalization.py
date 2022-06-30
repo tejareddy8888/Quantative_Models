@@ -136,8 +136,6 @@ if __name__ == '__main__':
     train_df, test_df = load_data(testSize)
 
     # Normalize the entire dataset,
-    # train_df = preprocess_data(train_df, input_columns)
-    # test_df = preprocess_data(test_df, input_columns)
     scaler = StandardScaler()
 
     train_array = scaler.fit_transform(train_df)
@@ -205,6 +203,7 @@ if __name__ == '__main__':
         [y[timesteps][-1] for y in autoencoded_train_inputs])
     y_val = tf.convert_to_tensor([[[y[timesteps][-1]]] for y in val])
 
+    ## Unused as of now, edit if you have time
     model_train_dataset = tf.data.Dataset.from_tensors((x_train, y_train))
     model_val_dataset = tf.data.Dataset.from_tensors((x_val, y_val))
 
@@ -292,11 +291,9 @@ if __name__ == '__main__':
     eval_train = window.make_dataset(train_array, shuffle=False)
     eval_test = window.make_dataset(test_array, shuffle=False)
 
-    convertable_train_array = np.empty(shape=train_array.shape)
-    np.copyto(convertable_train_array,train_array) 
+    convertable_train_array = np.copy(train_array)
 
-    convertable_test_array = np.empty(shape=test_array.shape)
-    np.copyto(convertable_test_array,test_array) 
+    convertable_test_array = np.copy(test_array)
 
     unscaled_train_array = scaler.inverse_transform(train_array)
     unscaled_test_array = scaler.inverse_transform(test_array)
@@ -308,7 +305,7 @@ if __name__ == '__main__':
     plt.figure()
     plt.subplot()
     normalized_y_pred = model.predict(eval_train)
-    convertable_train_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
+    convertable_train_array[timesteps+1:,prediction_column_index] = np.squeeze(normalized_y_pred)
     y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_train_array),actual_columns, train_df.index).iloc[timesteps+1:,prediction_column_index]
     y_true = train_df[timesteps+1:].iloc[:,prediction_column_index]
     insample_mse = tf.reduce_mean(tf.keras.losses.MSE(y_true, y_pred))
@@ -333,9 +330,9 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot()    
-    # position taking: Directional trading strategy
+    # position taking: Directional trading strategy with threshold
     y_mkt = train_df.iloc[lb+lf:, prediction_column_index]
-    pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
+    pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -abs(x))(x) for x in y_pred]))
     pos[pos == -1] = 0
     pnl = pos[1:] * y_mkt[:-1]
     plt.plot(y_mkt.index[:-1], np.cumprod((np.ones(y_mkt[:-1].shape) + pnl)))
@@ -348,9 +345,9 @@ if __name__ == '__main__':
     plt.figure()
     plt.subplot()
     normalized_y_pred = model.predict(eval_test)
-    convertable_test_array[lb+lf:,18] = np.squeeze(normalized_y_pred)
+    convertable_test_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
     y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
-    y_true = np.concatenate([y for x, y in eval_test], axis=0)
+    y_true = test_df.iloc[timesteps+1:,prediction_column_index]
     mse = tf.reduce_mean(tf.keras.losses.MSE(y_true, y_pred))
     plt.plot(y_true[:, -1, -1])
     plt.plot(y_pred, '--')
@@ -385,7 +382,19 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot()
+
+    ## Checkout this code 
+    # ## Fetch the train df 
+    # ## Under the train df, we will compute mse on each phase and perform 
+    # normalized_y_pred = model.predict(eval_train)
+    # convertable_train_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
+    # y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
+    # y_true = test_df.iloc[timesteps+1:,prediction_column_index]
+
+    # mse(y_pred[low_phased_index, y_true[low_phase_index]])
+
     evaluating_test = test_df.iloc[lb+lf:, :].reset_index(drop=True)
+    ## fetch the phase value below using the mse's computed
     phased_index = list(evaluating_test[evaluating_test['VIX_phase']=='medium'].index.values)
     y_mkt =  test_df.iloc[lb+lf:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
