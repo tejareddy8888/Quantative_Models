@@ -96,7 +96,7 @@ class Autoencoder(tf.keras.models.Model):
 
 
 def load_data(testSize):
-    data_df = pd.read_excel('./market_data.xlsx', sheet_name='data', engine='openpyxl')
+    data_df = pd.read_excel('/content/drive/MyDrive/Colab Notebooks/market_data.xlsx', sheet_name='data', engine='openpyxl')
     data_df.set_index('Date', drop=True, inplace=True)
     return data_df[:-testSize], data_df[-testSize:]
 
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     # Load the data from the sheet
     train_df, test_df = load_data(testSize)
     # Graph phase variables and its thresh holds
-    graph_phase_variables(phase_variables)
+    # graph_phase_variables(phase_variables)
     # Normalize the entire dataset,
     scaler = StandardScaler()
 
@@ -201,9 +201,10 @@ if __name__ == '__main__':
         axs.plot(AC_model.history['loss'])
         axs.plot(AC_model.history['val_loss'])
         axs.legend(['training loss', 'validation loss'])
+        fig.savefig("AC loss.png")
     
     # Graph all normalized and autoencoded variables used in forecasting
-    graph_normalized_and_autoencoded()
+    # graph_normalized_and_autoencoded()
     
     
     # Get auto encoded data for training and validating with RNN/CNN model
@@ -225,7 +226,7 @@ if __name__ == '__main__':
     model_val_dataset = tf.data.Dataset.from_tensors((x_val, y_val))
 
     # Define learning rate
-    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(0.001, decay_steps=300, decay_rate=0.95, staircase=True)
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(0.01, decay_steps=300, decay_rate=0.95, staircase=True)
     # Define early stopping condition for model
     early_stopping = tf.keras.callbacks.EarlyStopping( monitor='val_loss', patience=100, mode='min')
 
@@ -261,6 +262,7 @@ if __name__ == '__main__':
             axs.plot(model_history.history['val_loss'])
             axs.legend(['training loss', 'validation loss'])
             plt.show()
+            fig.savefig('CNN_loss')
 
     else:
         rnn_checkpoint_path = "checkpoint/rnn.ckpt"
@@ -291,6 +293,7 @@ if __name__ == '__main__':
             axs.plot(model_history.history['val_loss'])
             axs.legend(['training loss', 'validation loss'])
             plt.show()
+            fig.savefig('RNN_loss')
 
 
     prediction_column = '_MKT'
@@ -311,8 +314,7 @@ if __name__ == '__main__':
     test_df = convert_and_add_phases(unscaled_test_array,actual_columns,test_df.index)
 
     # CHECK Overall Model performance on Train Data
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     normalized_y_pred = model.predict(eval_train)
     convertable_train_array[timesteps+1:,prediction_column_index] = np.squeeze(normalized_y_pred)
     y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_train_array),actual_columns, train_df.index).iloc[timesteps+1:,prediction_column_index]
@@ -322,9 +324,9 @@ if __name__ == '__main__':
     plt.plot(y_pred, '--')
     plt.title('in-sample mse =%1.2f' % insample_mse)
     plt.legend(['y_true', 'y_pred'])
+    fig.savefig("in-sample mse.png")
 
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     y_mkt = train_df.iloc[timesteps+1:, prediction_column_index]
     # position taking: Directional trading strategy
     y_pred = np.squeeze(y_pred)
@@ -336,9 +338,9 @@ if __name__ == '__main__':
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('in-sample Sharpe ratio w/o threshold = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
+    fig.savefig('in-sample_sr_wo_threshold.png')
 
-    plt.figure()
-    plt.subplot()    
+    fig , axs = plt.subplots()    
     # position taking: Directional trading strategy with threshold
     y_mkt = train_df.iloc[timesteps+1:, prediction_column_index]
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -abs(x))(x) for x in y_pred]))
@@ -349,9 +351,9 @@ if __name__ == '__main__':
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('in-sample Sharpe ratio with threshold = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
+    fig.savefig('in-sample_sr_with_threshold.png')
 
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     normalized_y_pred = model.predict(eval_test)
     convertable_test_array[timesteps+1:,18] = np.squeeze(normalized_y_pred)
     y_pred = convert_and_add_phases(scaler.inverse_transform(convertable_test_array),actual_columns, test_df.index).iloc[timesteps+1:,prediction_column_index]
@@ -361,9 +363,9 @@ if __name__ == '__main__':
     plt.plot(y_pred, '--')
     plt.title('out-of-sample mse =%1.2f' % mse)
     plt.legend(['y_true', 'y_pred'])
+    fig.savefig('in-sample_sr_with_threshold.png')
 
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     y_mkt = test_df.iloc[timesteps+1:, :].loc[:, prediction_column]
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     y_pred = np.squeeze(y_pred)
@@ -375,9 +377,9 @@ if __name__ == '__main__':
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio w/o threshold = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
+    fig.savefig('out-of-sample_sr_wo_threshold.png')
 
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
     pos[pos == -1] = 0
@@ -387,8 +389,7 @@ if __name__ == '__main__':
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
-
-
+    fig.savefig('out-of-sample_sr_with_threshold.png')
 
     # Finding the threshold for each phase variable that model perform the best
     evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
@@ -406,9 +407,9 @@ if __name__ == '__main__':
         print("High = %f" %tf.reduce_mean(tf.keras.losses.MSE(y_true[high_phased_index], y_pred[high_phased_index])))
         print()
 
+
     # Trading strategy with thresholds from phase variables
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['VIX_phase']=='low'].index.values)
     y_mkt =  test_df.iloc[timesteps+1:, :].loc[:,'_MKT']
@@ -424,14 +425,14 @@ if __name__ == '__main__':
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold with VIX phase = %1.2f' % sr)
     plt.legend(['pnl [t+1]',  'underlying'])
+    fig.savefig('out-of-sample_sr_with_threshold_VIX.png')
 
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['M2_phase']=='low'].index.values)
     y_mkt =  test_df.iloc[timesteps+1:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
-   
+
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     y_pred = np.squeeze(y_pred[:,  -1])
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
@@ -443,14 +444,14 @@ if __name__ == '__main__':
     sr = pnl.mean()/pnl.std() * np.sqrt(52)
     plt.title('out-of-sample Sharpe ratio with threshold with M2 phase = %1.2f' % sr)
     plt.legend(['pnl [t+1]', 'underlying'])
+    fig.savefig('out-of-sample_sr_with_threshold_M2.png')
 
-    plt.figure()
-    plt.subplot()
+    fig, axs = plt.subplots()
     evaluating_test = test_df.iloc[timesteps+1:, :].reset_index(drop=True)
     phased_index = list(evaluating_test[evaluating_test['_OIL_phase']=='low'].index.values)
     y_mkt =  test_df.iloc[timesteps+1:, :].loc[:,'_MKT']
     y_pred = model.predict(eval_test)
-   
+
     # position taking: Directional trading strategy with in-sample mse sqrt as threshold
     y_pred = np.squeeze(y_pred[:,  -1])
     pos = np.sign(np.array([(lambda x: x if abs(x) > np.sqrt(insample_mse) else -x)(x) for x in y_pred]))
@@ -463,3 +464,4 @@ if __name__ == '__main__':
     plt.title('out-of-sample Sharpe ratio with threshold with OIL phase = %1.2f' % sr)
     plt.legend(['pnl [t+1]',  'underlying'])
     plt.show()
+    fig.savefig('out-of-sample_sr_with_threshold_OIL.png')
