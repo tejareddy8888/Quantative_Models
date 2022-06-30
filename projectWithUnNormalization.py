@@ -123,6 +123,18 @@ def convert_and_add_phases(array, columns, index):
     )
     return df
 
+def graph_phase_variables(phase_variables):
+    df = pd.concat([train_df, test_df],axis=0)
+    # Graph of phase variables
+    for variable in phase_variables:
+        plt.figure()
+        plt.subplot()
+        plt.plot(df[variable])
+        plt.axhline(y=(df[variable].mean()+(0.5*df[variable].std())), color='g', linestyle='-')
+        plt.axhline(y=(df[variable].mean()-(0.5*df[variable].std())), color='r', linestyle='-')
+        plt.legend([variable,'upperbound','lowerbound'])
+        plt.show()
+
 
 if __name__ == '__main__':
     through_cnn = True
