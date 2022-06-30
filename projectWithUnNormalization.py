@@ -135,6 +135,20 @@ def graph_phase_variables(phase_variables):
         plt.legend([variable,'upperbound','lowerbound'])
         plt.show()
 
+def graph_normalized_and_autoencoded():
+    variables = window.make_dataset(np.concatenate([train_array,test_array],axis=0), shuffle=False)
+    autoencoded_variables = AC.predict(forecast_variables)
+    for var_name in input_columns
+        variable = np.array((df[var_name]- df[var_name].mean())/df[var_name].std())
+        index = input_columns.index(var_name)
+        autoencoded = autoencoded_variables[:,timesteps,index]
+        plt.figure()
+        plt.subplot()
+        plt.plot(variable[timesteps:])
+        plt.plot(autoencoded)
+        plt.legend([" "+var_name,'Autoencoded '+var_name])
+        plt.show()
+
 
 if __name__ == '__main__':
     through_cnn = True
@@ -143,10 +157,12 @@ if __name__ == '__main__':
     pooling = 1
     input_columns = ['MOV ', 'VOL', 'Rho', 'CPI', '_MKT',]
     target_columns = ['_MKT']
+    phase_variables = ['M2','_OIL','VOL']
 
     # Load the data from the sheet
     train_df, test_df = load_data(testSize)
-
+    # Graph phase variables and its thresh holds
+    graph_phase_variables(phase_variables)
     # Normalize the entire dataset,
     scaler = StandardScaler()
 
@@ -205,6 +221,10 @@ if __name__ == '__main__':
     axs.plot(val[:, -1, -1])
     axs.plot(autoencoded_val_inputs[:, -1, -1])
     axs.legend(['training signal', 'autoencoded signal'])
+
+    # Graph all normalized and autoencoded variables used in forecasting
+    graph_normalized_and_autoencoded()
+
 
     # Separate x_train, x_val and y_train from autoecoded data
     x_train = tf.convert_to_tensor(
