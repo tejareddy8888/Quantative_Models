@@ -32,4 +32,5 @@ scikit-learn===1.1.1
 
 > Excuse few plt.show() in between the project.py file
 
+## NOTE: If the `project.py` does not work, please try to use the previous versions in descending order.
 GITHUB_URL: git@github.com:tejareddy8888/Quantative_Models.git
