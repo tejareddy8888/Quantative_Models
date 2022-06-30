@@ -2,6 +2,7 @@
 # Project Submission of Investments: Machine Learning for Finance
 ## Le Hoang Minh Trinh, Oguz Han Sayar, Saiteja Reddy Pottanigari
 
+## matriculation-number: {18-274-753,21-714-704, 19-763-093}
 
 ## Requirements 
 python===3.9.10
