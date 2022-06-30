@@ -5,9 +5,6 @@ import pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 
-import pmdarima as pm
-
-
 class WindowGenerator():
     def __init__(self, input_width, label_width, shift, input_columns, label_columns, all_columns):
 
@@ -101,13 +98,12 @@ class Autoencoder(tf.keras.models.Model):
 def load_data(testSize):
     data_df = pd.read_excel('./market_data.xlsx', sheet_name='data', engine='openpyxl')
     data_df.set_index('Date', drop=True, inplace=True)
-
     return data_df[:-testSize], data_df[-testSize:]
 
 
 def convert_and_add_phases(array, columns, index):
     df = pd.DataFrame(array,columns=columns,index=index)
-
+    # Create new column for each phase variable. 3 threshold, high, normal, low.
     df['VIX_phase'] = df.apply(
         lambda x: 'low' if x['VOL'] < 12 else 'high' if x['VOL'] > 20 else 'medium', axis=1
     )
@@ -121,7 +117,7 @@ def convert_and_add_phases(array, columns, index):
 
 def graph_phase_variables(phase_variables):
     df = pd.concat([train_df, test_df],axis=0)
-    # Graph of phase variables
+    # Graph of phase variables with its thresholds
     for variable in phase_variables:
         plt.figure()
         plt.subplot()
@@ -132,6 +128,7 @@ def graph_phase_variables(phase_variables):
         plt.show()
 
 def graph_normalized_and_autoencoded():
+    # Graph of forecasting variables and how autoencoder smooth them
     df = pd.concat([train_df, test_df],axis=0)
     variables = window.make_dataset(np.concatenate([train_array,test_array],axis=0), shuffle=False)
     autoencoded_variables = AC.predict(variables)
@@ -148,7 +145,6 @@ def graph_normalized_and_autoencoded():
 
 
 if __name__ == '__main__':
-    through_cnn = True
     testSize = 250
     timesteps = 7
     pooling = 1
@@ -166,29 +162,27 @@ if __name__ == '__main__':
     train_array = scaler.fit_transform(train_df)
     test_array = scaler.transform(test_df)
 
-    # creating a sliding windowed data
+    # Create a sliding windowed data
     # Few constants like input window of number of time steps width and prediction timesteps width
     # Width = timesteps +1 because need to include the target at T
     window = WindowGenerator(input_width=(timesteps+1), label_width=1, shift=1,
                              input_columns=input_columns, label_columns=target_columns, all_columns=train_df.columns)
-
     td = window.make_dataset(train_array, True, 250)
     train_data = td.take(3)
     val_data = td.skip(3)
 
+    # Save model weights
     ac_checkpoint_path = "checkpoint/autoencoder.ckpt"
-
     # Create a callback that saves the model's weights
     checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=ac_checkpoint_path,
                                                              save_weights_only=True,
                                                              verbose=1)
-
+    
     train = tf.concat([x for x, _ in train_data], axis=0)
-
     val = tf.concat([x for x, _ in val_data], axis=0)
 
-    # # Training; Hint: play with num_hidden = 1 or 2, and kernel_size
-    # time steps +1 because of the same reason as when defining window
+    # Train auto encoder model
+    # Time steps +1 because of the same reason as when defining window
     AC = Autoencoder(num_timesteps=(timesteps+1), num_inputs=len(
         input_columns), num_hidden=2, kernel_size=25, pooling=pooling)
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
@@ -198,7 +192,7 @@ if __name__ == '__main__':
     AC.run_eagerly = True
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='val_loss', patience=20, mode='min')
-
+    # If model has been trained, reuse weights else train the model
     if os.path.isfile(os.getcwd()+'/'+ac_checkpoint_path+'.index'):
         AC.load_weights(ac_checkpoint_path)
     else:
@@ -209,20 +203,15 @@ if __name__ == '__main__':
         axs.plot(AC_model.history['loss'])
         axs.plot(AC_model.history['val_loss'])
         axs.legend(['training loss', 'validation loss'])
-
-    # Plot the autoencoded data and actual data
-    autoencoded_train_inputs = AC.predict(train)
-    autoencoded_val_inputs = AC.predict(val)
-
-    fig, axs = plt.subplots()
-    axs.plot(val[:, -1, -1])
-    axs.plot(autoencoded_val_inputs[:, -1, -1])
-    axs.legend(['training signal', 'autoencoded signal'])
-
+    
     # Graph all normalized and autoencoded variables used in forecasting
     graph_normalized_and_autoencoded()
-
-
+    
+    
+    # Get auto encoded data for training and validating with RNN/CNN model
+    autoencoded_train_inputs = AC.predict(train)
+    autoencoded_val_inputs = AC.predict(val)
+    
     # Separate x_train, x_val and y_train from autoecoded data
     x_train = tf.convert_to_tensor(
         [x[:timesteps] for x in autoencoded_train_inputs])
@@ -232,49 +221,48 @@ if __name__ == '__main__':
         [y[timesteps][-1] for y in autoencoded_train_inputs])
     y_val = tf.convert_to_tensor([[[y[timesteps][-1]]] for y in val])
 
-    ## Unused as of now, edit if you have time
+
+    # Combine into a dataset to train the model
     model_train_dataset = tf.data.Dataset.from_tensors((x_train, y_train))
     model_val_dataset = tf.data.Dataset.from_tensors((x_val, y_val))
 
-    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.001, decay_steps=300, decay_rate=0.95, staircase=True)
-    early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss', patience=30, mode='min')
+    # Define learning rate
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(0.001, decay_steps=300, decay_rate=0.95, staircase=True)
+    # Define early stopping condition for model
+    early_stopping = tf.keras.callbacks.EarlyStopping( monitor='val_loss', patience=30, mode='min')
 
     # define sliding window
     lf = 1      # look forward
     ks = 2     # kernel size
     lw = 1      # label width
     lb = timesteps
+    through_cnn = True
     # Train with RNN
     if through_cnn:
         cnn_checkpoint_path = "checkpoint/cnn.ckpt"
         # Create a callback that saves the model's weights
-        cnn_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=cnn_checkpoint_path,
-                                                                     save_weights_only=True,
-                                                                     verbose=1)
+        cnn_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=cnn_checkpoint_path, save_weights_only=True,verbose=1)          
+
+        # Build CNN model                                               
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Conv1D(
-            filters=64, kernel_size=ks, activation='relu', use_bias=False, input_shape=(timesteps, len(input_columns))))
-        model.add(tf.keras.layers.MaxPooling1D(
-            pool_size=2,))
+        model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=ks, activation='relu', use_bias=False, input_shape=(timesteps, len(input_columns))))
+        model.add(tf.keras.layers.MaxPooling1D(pool_size=2,))
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(64, activation='relu'))
         model.add(tf.keras.layers.Dense(units=1))
 
-        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(
-            lr_schedule), metrics=[tf.metrics.MeanSquaredError()])
+        # Define loss function, optimizer
+        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(lr_schedule))
         model.run_eagerly = False
 
+        # If model has been trained, reuse weights else train the model
         if os.path.isfile(os.getcwd()+'/'+cnn_checkpoint_path+'.index'):
             model.load_weights(cnn_checkpoint_path)
         else:
-            # early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=30, mode='min')
-            model_history = model.fit(x=x_train, y=y_train, validation_data=(
-                x_val, y_val), epochs=300, callbacks=[cnn_checkpoint_callback])
+            model_history = model.fit(train_data=model_train_dataset, validation_data=model_val_dataset, epochs=300, callbacks=[cnn_checkpoint_callback, early_stopping])
             print(model.summary())
 
-            # Plot loss from RNN
+            # Plot loss from CNN
             fig, axs = plt.subplots()
             axs.plot(model_history.history['loss'])
             axs.plot(model_history.history['val_loss'])
@@ -284,25 +272,24 @@ if __name__ == '__main__':
     else:
         rnn_checkpoint_path = "checkpoint/rnn.ckpt"
         # Create a callback that saves the model's weights
-        rnn_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=rnn_checkpoint_path,
-                                                                     save_weights_only=True,
-                                                                     verbose=1)
+        rnn_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=rnn_checkpoint_path, save_weights_only=True,verbose=1)
+
+        # Build RNN model
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.LSTM(64, return_sequences=False,
-                                       return_state=False, activation=None, use_bias=False))
+        model.add(tf.keras.layers.LSTM(64, return_sequences=False,return_state=False, activation=None, use_bias=False))
         model.add(tf.keras.layers.Dense(64, activation=None, use_bias=False))
         model.add(tf.keras.layers.Dropout(0.01))
         model.add(tf.keras.layers.Dense(1, activation=None, use_bias=False))
-        model.compile(loss=tf.losses.MeanSquaredError(),
-                      optimizer=tf.optimizers.Adam(lr_schedule), metrics=[tf.metrics.MeanSquaredError()])
+
+        # Define loss function , optimizer
+        model.compile(loss=tf.losses.MeanSquaredError(), optimizer=tf.optimizers.Adam(lr_schedule))
         model.run_eagerly = False
 
+        # If model has been trained, reuse weights else train the model
         if os.path.isfile(os.getcwd()+'/'+rnn_checkpoint_path+'.index'):
             model.load_weights(rnn_checkpoint_path)
         else:
-            # early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=30, mode='min')
-            model_history = model.fit(x=x_train, y=y_train, validation_data=(
-                x_val, y_val), epochs=300, callbacks=[early_stopping, rnn_checkpoint_callback])
+            model_history = model.fit(train_data=model_train_dataset, validation_data=model_val_dataset, epochs=300, callbacks=[early_stopping, rnn_checkpoint_callback])
             print(model.summary())
 
             # Plot loss from RNN
